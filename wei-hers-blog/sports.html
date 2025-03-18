@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運動文章</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff9c7;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #c1afe1;
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .hero-section {
+            text-align: center;
+            padding: 30px;
+            color: rgb(38, 37, 88);
+        }
+        .article {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .article:hover {
+            background-color: #f8f9fa;
+        }
+        .article-footer {
+            font-size: 14px;
+            color: gray;
+        }
+        .hashtag {
+            display: inline-block;
+            background-color: #e1bee7;
+            padding: 5px;
+            border-radius: 5px;
+            margin: 3px;
+        }
+        .filter-select {
+            margin-left: 15px;
+        }
+        .article-content img {
+            max-width: 100%;  /* 圖片最多跟容器一樣寬 */
+            height: auto;     /* 保持原比例 */
+            border-radius: 10px;  /* 圓角 */
+            display: block;   /* 讓圖片不受行內元素影響 */
+            margin: 10px auto;  /* 讓圖片置中並增加上下間距 */
+            max-height: 250px;  /* 限制高度，避免太大 */
+            object-fit: cover;  /* 確保圖片填滿但不變形 */
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 導覽列 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand text-white nav-link" href="index.html">我的部落格</a>
+            <div class="d-flex">
+                <input type="text" class="form-control me-2" id="searchInput" placeholder="搜尋文章">
+                <select class="form-select filter-select" id="categoryFilter">
+                    <option value="all">所有分類</option>
+                    <option value="3000-plan">3000大計劃</option>
+                    <option value="PE-class">體育課</option>
+                    <option value="daily-practice">日常練習</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄區 -->
+    <div class="hero-section">
+        <h1>分享運動的生活！</h1>
+    </div>
+
+    <!-- 文章列表 -->
+    <div class="container mt-5">
+        <h2 class="text-center">文章列表</h2>
+        <div id="articlesList">
+            <!-- 文章將由 JavaScript 動態加載 -->
+        </div>
+    </div>
+
+    <!-- Modal 彈出視窗 -->
+    <div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="articleModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="articleModalContent">
+                    <!-- 文章內容將動態載入 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 刺繡文章數據，包含hashtags（分類）
+        const articles = [
+            { 
+                title: "DAY-12", 
+                content: "今天的我超棒!這是我跑那麼久以來第一次跑進19分鐘，真的感覺到自己一直在進步。希望到時候考試也可以維持今天的狀態", 
+                likes: 120, 
+                comments: 25, 
+                date: "2025-03-13", 
+                categories: ["3000-plan"] 
+            },
+            { 
+                title: "DAY-6", 
+                content: "感冒跑步好痛苦RRRR，但是運動的時候莫名的鼻子就通了，果然運動是個好東西。",
+                likes: 85, 
+                comments: 18, 
+                date: "2025-03-03", 
+                categories: ["3000-plan"] 
+            },
+            { 
+                title: "創意刺繡：如何設計獨特的圖案", 
+                content: "想要讓刺繡作品更加個性化嗎？你可以從自然界獲得靈感。",
+                likes: 97, 
+                comments: 30, 
+                date: "2025-03-14", 
+                categories: ["advanced"] 
+            },
+            { 
+                title: "刺繡小物製作：刺繡別針與裝飾品", 
+                content: "刺繡不僅限於布料上的裝飾，還可以應用在許多創意小物上。",
+                likes: 140, 
+                comments: 42, 
+                date: "2025-03-15", 
+                categories: ["advanced", "tools"] 
+            },
+            { 
+                title: "刺繡保養與保存技巧", 
+                content: "完成一件刺繡作品後，適當的保養可以延長它的壽命。",
+                likes: 60, 
+                comments: 10, 
+                date: "2025-03-16", 
+                categories: ["beginner"] 
+            }
+        ];
+
+        // 顯示文章列表
+        function displayArticles(filter = "all") {
+            const articlesList = document.getElementById("articlesList");
+            articlesList.innerHTML = "";  
+            //過濾文章
+            let filteredArticles = articles.filter(article => 
+                filter === "all" || article.categories.includes(filter)
+            );
+
+            //依照日期排序
+            filteredArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            //顯示文章
+            filteredArticles.forEach((article, index) => {
+                const articleDiv = document.createElement("div");
+                articleDiv.classList.add("article");
+                articleDiv.setAttribute("data-index", index); 
+                articleDiv.innerHTML = `
+                    <h3>${article.title}</h3>
+                    <p>${article.content.substring(0, 30)}...</p>
+                    <div class="article-footer">
+                        ❤️ ${article.likes} 讚 &nbsp; 💬 ${article.comments} 留言 &nbsp; 📅 ${article.date}
+                    </div>
+                    <div>
+                        ${article.categories.map(cat => `<span class="hashtag">#${cat}</span>`).join(" ")}
+                    </div>
+                `;
+                articleDiv.addEventListener("click", () => showArticle(index));
+                articlesList.appendChild(articleDiv);
+            });
+        }
+
+        // 顯示 Modal 內文
+        function showArticle(index) {
+            const article = articles[index];
+
+            document.getElementById("articleModalLabel").innerText = article.title;
+            document.getElementById("articleModalContent").innerHTML = `
+                <p>${article.content}</p>
+                <hr>
+                ❤️ ${article.likes} 讚 &nbsp; 💬 ${article.comments} 留言 &nbsp; 📅 ${article.date}
+                <br><br>
+                ${article.categories.map(cat => `<span class="hashtag">#${cat}</span>`).join(" ")}
+            `;
+
+            const modalElement = document.getElementById("articleModal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+            modal.show();
+        }
+
+        // 篩選功能
+        document.getElementById("categoryFilter").addEventListener("change", (e) => {
+            const filter = e.target.value;
+            displayArticles(filter);
+        });
+
+        // 初始化文章
+        document.addEventListener("DOMContentLoaded", () => {
+            displayArticles();
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
