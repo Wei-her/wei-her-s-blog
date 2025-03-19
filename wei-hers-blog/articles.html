@@ -22,19 +22,42 @@
             color: rgb(38, 37, 88);
         }
         .article {
-            background-color: white;
+            margin-bottom: 20px;
+            /*align-items: center;*/
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .article-all{
+            display: flex;
+            flex-direction: row;
         }
         .article:hover {
             background-color: #f8f9fa;
         }
         .article-footer {
-            font-size: 14px;
+            font-size: 0.9em;
             color: gray;
+        }
+        .article h3{
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .article-content {
+            flex: 1;/* 讓內容區塊填滿剩餘空間 */
+            flex-direction: row;/* 讓文字與圖片垂直排列 */
+            display: flex;
+            margin-right: 15px;/* 讓文字與圖片有間距 */
+        }
+        .article-image-container {
+            flex-shrink: 0;/* 防止圖片區被壓縮*/
+            align-items: center;
+            display: flex;
+            justify-content: flex-end;/* 讓圖片靠右對齊 */
         }
         .hashtag {
             display: inline-block;
@@ -47,12 +70,14 @@
             margin-left: 15px;
         }
         .article-image {
-            max-width: 100%;
-            height: 180px;
-            border-radius: 10px;
-            object-fit: cover;
-            cursor: pointer;
-            transition: 0.3s;
+            width: 150px;/* 固定寬度 */
+            height: 150px;/* 固定高度 */
+            border-radius: 5px;
+            object-fit: cover;/* 保持圖片比例，並填滿容器 */
+        }
+        /* 當沒有圖片時，隱藏圖片區 */
+        .article.no-image .article-image-container {
+            display: none;
         }
 
         .article-image:hover {
@@ -197,51 +222,72 @@
                 ] 
             }
         ];
+        
+        // 搜尋輸入框事件監聽
+        document.getElementById("searchInput").addEventListener("input", (e) => {
+            const searchText = e.target.value.toLowerCase();
+            // 重新顯示文章列表，並將搜尋文字傳遞過去
+            displayArticles(document.getElementById("categoryFilter").value, searchText);
+        });
 
         // 顯示文章列表
-        function displayArticles(filter = "all") {
+        function displayArticles(filter = "all", searchText = "") {
             const articlesList = document.getElementById("articlesList");
-            articlesList.innerHTML = "";  
-            //過濾文章
-            let filteredArticles = articles.filter(article => 
-                filter === "all" || article.categories.includes(filter)
-            );
+            articlesList.innerHTML = ""; // 先清空文章列表
 
-            //依照日期排序
+            let filteredArticles = articles.filter(article => {
+                const matchesCategory = filter === "all" || article.categories.includes(filter);
+                const matchesSearch = searchText === "" || article.title.toLowerCase().includes(searchText) || article.content.toLowerCase().includes(searchText);
+                return matchesCategory && matchesSearch;
+            });
+
             filteredArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            //顯示文章
-            filteredArticles.forEach((article) => {
-                const articleDiv = document.createElement("div");
-                articleDiv.classList.add("article");
-                articleDiv.setAttribute("data-id", article.title); // 使用 title 作為唯一 id
+            if (filteredArticles.length > 0) {
+                filteredArticles.forEach((article) => {
+                    const articleDiv = document.createElement("div");
+                    articleDiv.classList.add("article");
 
-                // 取得第一張圖片作為預覽
-                const firstImage = article.images.length > 0 ? article.images[0] : "https://via.placeholder.com/150";
+                    //如果沒有圖片，添加"no-image"class
+                    if (article.images.length === 0) {
+                        articleDiv.classList.add("no-image");
+                    }
 
-                // 生成分類標籤
-                const categoriesHTML = article.categories.map(cat => 
-                    `<span class="category-badge" onclick="filterByCategory('${cat}')">#${cat}</span>`
-                ).join(" ");
-                
-                articleDiv.innerHTML = `
-                    <img src="${firstImage}" alt="${article.title}" class="article-image">
-                    <h3>${article.title}</h3>
-                    <p>${article.content.substring(0, 30)}...</p>
-                    <div class="article-footer">
-                        ❤️ ${article.likes} 讚 &nbsp; 💬 ${article.comments} 留言 &nbsp; 📅 ${article.date}
-                    </div>
-                    <div>
-                        ${article.categories.map(cat => `<span class="hashtag">#${cat}</span>`).join(" ")}
-                    </div>
-                `;
+                    articleDiv.setAttribute("data-id", article.title);
 
-                // 綁定點擊事件，通過 id 顯示文章
-                articleDiv.addEventListener("click", () => showFullArticle(article.title));
+                    const firstImage = article.images.length > 0 ? article.images[0] : "https://via.placeholder.com/150";
 
-                articlesList.appendChild(articleDiv);
-            });
+                    articleDiv.innerHTML = `
+                        <div class="article-all">
+                            <div class="article-words">
+                                <h3>${article.title}</h3>
+                                <div class="article-content">
+                                    <p>${article.content.substring(0, 30)}...</p>
+                                </div>
+                                <div class="article-footer">
+                                    ❤️ ${article.likes} 讚 &nbsp; 💬 ${article.comments} 留言 &nbsp; 📅 ${article.date}
+                                </div>
+                                <div>
+                                    ${article.categories.map(cat => `<span class="hashtag">#${cat}</span>`).join(" ")}
+                                </div>
+                            </div>
+
+                            <div class="article-image-container">
+                                <img src="${firstImage}" alt="${article.title}" class="article-image">
+                            </div>
+                        </div>
+                    `;
+
+                    articleDiv.addEventListener("click", () => showFullArticle(article.title));
+
+                    articlesList.appendChild(articleDiv);
+                });
+            } else {
+                articlesList.innerHTML = "<p>沒有找到相關文章。</p>";
+            }
         }
+
+
 
         // 顯示 Modal 內文
         function showFullArticle(articleId) {

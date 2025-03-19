@@ -40,10 +40,9 @@
         .edit-buttons {
             margin-top: 10px;
         }
-        .inlinediv{
-            display:inline-block;
+        .inlinediv {
+            display: inline-block;
         }
-
     </style>
 </head>
 <body>
@@ -64,15 +63,13 @@
                 <p id="zodiac">星座：處女座</p>
                 <p id="hobby">興趣：烹飪、唱歌、跳舞、吃飯、睡覺</p>
                 <p id="school">學校：北一女中</p>
-                <p id="bio">個人簡介：我是個剛開始接觸網站的人(在幫助下完成了這個部落格)，還是個刺繡的初學者，喜歡探索各個未知的領域，人生最大的志向是每天開心過日子，吃好吃的東西，做一個健康的人。
-                </p>
+                <p id="bio">個人簡介：我是個剛開始接觸網站的人(在幫助下完成了這個部落格)，還是個刺繡的初學者，喜歡探索各個未知的領域，人生最大的志向是每天開心過日子，吃好吃的東西，做一個健康的人。</p>
                 <div class="edit-buttons">
                     <button class="btn btn-primary" onclick="editProfile()">編輯</button>
                     <button class="btn btn-success" id="saveButton" onclick="saveProfile()" style="display: none;">儲存</button>
                 </div>
             </div>    
         </div>
-        
     </div>
 
     <script>
@@ -102,18 +99,31 @@
             if (checkPassword()) {
                 document.getElementById("bio").contentEditable = true;
                 document.getElementById("saveButton").style.display = "inline";
-            } 
-            else if (enteredPassword !== savedPassword) {
+            } else {
                 alert("密碼錯誤！");
             }
         }
 
         // 儲存修改
         function saveProfile() {
+            // 儲存新的簡介內容
+            let newBio = document.getElementById("bio").innerText;
+            localStorage.setItem("bioContent", newBio);
+            
+            // 停用 contentEditable 並隱藏儲存按鈕
             document.getElementById("bio").contentEditable = false;
             document.getElementById("saveButton").style.display = "none";
+            
             alert("簡介已儲存！");
         }
+
+        // 在頁面加載時讀取並顯示儲存的內容
+        window.onload = function() {
+            let savedBio = localStorage.getItem("bioContent");
+            if (savedBio) {
+                document.getElementById("bio").innerText = savedBio;
+            }
+        };
     </script>
 
 </body>
