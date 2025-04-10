@@ -76,9 +76,9 @@
             object-fit: cover;/* 保持圖片比例，並填滿容器 */
         }
         /* 當沒有圖片時，隱藏圖片區 */
-        /*.article.no-image .article-image-container {
+        .article.no-image .article-image-container {
             display: none;
-        }*/
+        }
 
         .article-image:hover {
             opacity: 0.8;
@@ -186,7 +186,11 @@
                 likes: 97, 
                 comments: 30, 
                 date: "2025-03-18", 
-                categories: ["tools"]
+                categories: ["tools"],
+                images: [
+                    "images/刺繡工具.jpg",
+                    "images/刺繡中.jpg"
+                ]
             },
             { 
                 title: "時間管理與刺繡：一針一線中找回生活的節奏", 
@@ -205,7 +209,11 @@
                 likes: 60, 
                 comments: 10, 
                 date: "2025-03-25", 
-                categories: ["advanced"]
+                categories: ["advanced"],
+                images: [
+                    "images/刺繡工具.jpg",
+                    "images/刺繡中.jpg"
+                ]
             }
         ];
         
@@ -235,9 +243,9 @@
                     articleDiv.classList.add("article");
 
                     //如果沒有圖片，添加"no-image"class
-                    /*if (article.images.length === 0) {
+                    if (article.images.length === 0) {
                         articleDiv.classList.add("no-image");
-                    }*/
+                    }
 
                     articleDiv.setAttribute("data-id", article.title);
 
